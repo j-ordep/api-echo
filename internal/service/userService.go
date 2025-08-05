@@ -12,9 +12,9 @@ func NewService(repository domain.UserRepository) *UserService {
 	return &UserService{repository: repository}
 }
 
-func (s *UserService) CreateUser(name string, email string) (*domain.User, error) {
+func (s *UserService) CreateUser(user domain.User) (*domain.User, error) {
 
-	newUser := domain.NewUser(name, email)
+	newUser := domain.NewUser(user.Name, user.Email)
 
 	err := s.repository.CreateUser(newUser)
 	if err != nil {
@@ -41,21 +41,22 @@ func (s *UserService) FindAll() ([]*domain.User, error) {
 	return users, nil
 }
 
-func (s *UserService) UpdateUser(id string, name string, email string) (*domain.User, error) {
-	user, err := s.repository.FindById(id)
+func (s *UserService) UpdateUser(id string, user *domain.User) (*domain.User, error) {
+
+	newUser, err := s.repository.FindById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	user.Name = name
-	user.Email = email
+	newUser.Name = user.Name
+	newUser.Email = user.Email
 
-	err = s.repository.UpdateUser(user)
+	err = s.repository.UpdateUser(newUser)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return newUser, nil
 }
 
 func (s *UserService) DeleteById(id string) error{
