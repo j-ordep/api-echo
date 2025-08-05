@@ -9,7 +9,7 @@ type UserService struct {
 }
 
 func NewService(repository domain.UserRepository) *UserService {
-	return &UserService{repository: repository,}
+	return &UserService{repository: repository}
 }
 
 func (s *UserService) CreateUser(name string, email string) (*domain.User, error) {
