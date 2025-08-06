@@ -1,8 +1,18 @@
 package dto
 
-import "time"
+import (
+	"api-echo/internal/domain"
+	"time"
+)
 
-type UserDto struct {
+// Request
+type InputDto struct {
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+}
+
+// Response
+type OutputDto struct {
 	Id        string    `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
@@ -10,4 +20,16 @@ type UserDto struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TODO implementar os DTOs
+func ToDomain(input InputDto) *domain.User {
+	return domain.NewUser(input.Name, input.Email)
+}
+
+func ToDto(user *domain.User) *OutputDto {
+	return &OutputDto{
+		Id: user.Email,
+		Name: user.Name,
+		Email: user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+}
