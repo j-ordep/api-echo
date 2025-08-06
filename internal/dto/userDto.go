@@ -24,7 +24,7 @@ func ToDomain(input InputDto) *domain.User {
 	return domain.NewUser(input.Name, input.Email)
 }
 
-func ToDto(user *domain.User) *OutputDto {
+func ToResponse(user *domain.User) *OutputDto {
 	return &OutputDto{
 		Id: user.Id,
 		Name: user.Name,
