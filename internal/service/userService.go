@@ -14,9 +14,18 @@ func NewService(repository domain.UserRepository) *UserService {
 
 func (s *UserService) CreateUser(user *domain.User) (*domain.User, error) {
 
+	existingUser, err := s.repository.FindByEmail(user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if existingUser != nil {
+		return nil, domain.ErrUserAlreadyExists
+	}
+	
 	newUser := domain.NewUser(user.Name, user.Email)
 
-	err := s.repository.CreateUser(newUser)
+	err = s.repository.CreateUser(newUser)
 	if err != nil {
 		return nil, err
 	}
