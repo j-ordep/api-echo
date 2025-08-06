@@ -2,6 +2,7 @@ package handler
 
 import (
 	"api-echo/internal/domain"
+	"api-echo/internal/dto"
 	"api-echo/internal/service"
 	"database/sql"
 	"net/http"
@@ -18,22 +19,34 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
-    var newUser domain.User
 
-	err := c.Bind(&newUser)
+	var inputDto dto.InputDto
+
+	err := c.Bind(&inputDto)
     if err != nil {
         return c.JSON(http.StatusBadRequest, map[string]string{
             "error": domain.ErrInvalidJSON.Error(),
         })
     }
 
-    createdUser, err := h.service.CreateUser(&newUser)
+	domainUser := dto.ToDomain(inputDto)
+
+    createdUser, err := h.service.CreateUser(domainUser)
     if err != nil {
+		if err == domain.ErrUserAlreadyExists {
+			return c.JSON(http.StatusConflict, map[string]string{
+           	 	"error": domain.ErrUserAlreadyExists.Error(),
+       		 })	
+		}
+
         return c.JSON(http.StatusInternalServerError, map[string]string{
             "error": domain.ErrInternalServer.Error(),
         })
     }
-    return c.JSON(http.StatusCreated, createdUser)
+
+	outputDto := dto.ToResponse(createdUser)
+
+    return c.JSON(http.StatusCreated, outputDto)
 }
 
 func (h *UserHandler) FindById(c echo.Context) error {
@@ -57,7 +70,9 @@ func (h *UserHandler) FindById(c echo.Context) error {
         })
     }
 
-	return c.JSON(http.StatusOK, user)
+	output := dto.ToResponse(user) 
+
+	return c.JSON(http.StatusOK, output)
 }
 
 func (h *UserHandler) FindAll(c echo.Context) error {
@@ -69,7 +84,12 @@ func (h *UserHandler) FindAll(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, users)
+	var outputDtos []*dto.OutputDto
+    for _, user := range users {
+        outputDtos = append(outputDtos, dto.ToResponse(user))
+    }
+    
+    return c.JSON(http.StatusOK, outputDtos)
 }
 
 func (h *UserHandler) UpdateUser(c echo.Context) error {
@@ -80,23 +100,27 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 		})
 	}
 
-	var user domain.User
+	var inputDto dto.InputDto
 
-	err := c.Bind(&user)
+	err := c.Bind(&inputDto)
 	if err != nil {
         return c.JSON(http.StatusBadRequest, map[string]string{
             "error": domain.ErrInvalidJSON.Error(),
         })
     }
 
-	newUser, err := h.service.UpdateUser(id, &user)
+	user := dto.ToDomain(inputDto)
+
+	domainUser, err := h.service.UpdateUser(id, user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string {
 			"error": domain.ErrInternalServer.Error(), 
 		})
 	}
 
-	return c.JSON(http.StatusOK, newUser)
+	outputDto := dto.ToResponse(domainUser)
+
+	return c.JSON(http.StatusOK, outputDto)
 }
 
 func (h *UserHandler) DeleteById(c echo.Context) error {
@@ -106,7 +130,6 @@ func (h *UserHandler) DeleteById(c echo.Context) error {
 			"error": domain.ErrUserIDRequired.Error(),
 		})
 	}
-
 
 	err := h.service.DeleteById(id)
     if err != nil {
