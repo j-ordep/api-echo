@@ -62,6 +62,30 @@ func (r *UserRepository) FindById(id string) (*domain.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) FindByEmail(email string) (*domain.User, error) {
+	var user domain.User
+	var createdAt, updatedAt time.Time
+
+	err := r.db.QueryRow(`
+		SELECT id, name, email, created_at, updated_at
+		FROM users
+		WHERE email = $1
+	`, email).Scan(
+		&user.Id,
+		&user.Name,
+		&user.Email,
+		&createdAt,
+		&updatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	user.CreatedAt = createdAt
+	user.UpdatedAt = updatedAt
+	return &user, nil
+}
+
 func (r *UserRepository) FindAll() ([]*domain.User, error) {
 	rows, err := r.db.Query(`SELECT id, name, email, created_at, updated_at FROM users`)
 	if err != nil {
