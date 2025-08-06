@@ -26,7 +26,7 @@ func ToDomain(input InputDto) *domain.User {
 
 func ToDto(user *domain.User) *OutputDto {
 	return &OutputDto{
-		Id: user.Email,
+		Id: user.Id,
 		Name: user.Name,
 		Email: user.Email,
 		CreatedAt: user.CreatedAt,
