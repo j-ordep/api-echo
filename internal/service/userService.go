@@ -12,7 +12,7 @@ func NewService(repository domain.UserRepository) *UserService {
 	return &UserService{repository: repository}
 }
 
-func (s *UserService) CreateUser(user domain.User) (*domain.User, error) {
+func (s *UserService) CreateUser(user *domain.User) (*domain.User, error) {
 
 	newUser := domain.NewUser(user.Name, user.Email)
 
