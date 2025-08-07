@@ -8,7 +8,7 @@ type UserService struct {
 	repository domain.UserRepository
 }
 
-func NewService(repository domain.UserRepository) *UserService {
+func NewUserService(repository domain.UserRepository) *UserService {
 	return &UserService{repository: repository}
 }
 
