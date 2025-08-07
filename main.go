@@ -1,10 +1,11 @@
 package main
 
 import (
+	"api-echo/internal/db"
 	"api-echo/internal/handler"
 	"api-echo/internal/repository"
 	"api-echo/internal/service"
-	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -13,39 +14,48 @@ import (
 
 func main() {
 
-	db, err := sql.Open("postgres", "conexão")
+    db, err := db.Connect()
     if err != nil {
-        panic(err)
+        log.Fatal("Erro ao conectar com o banco:", err)
     }
     defer db.Close()
 
-	r := repository.NewUserRepository(db)
-	s := service.NewService(r)
-	h := handler.NewUserHandler(s)
+    userRepo := repository.NewUserRepository(db)
+    userService := service.NewUserService(userRepo)
+    userHandler := handler.NewUserHandler(userService)
 
-	e := echo.New()
+    e := echo.New()
 
-	// e.Use(middleware.Logger())
+    e.Use(middleware.Logger())
+    e.Use(middleware.Recover())
+    e.Use(middleware.CORS())
 
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "method=${method}, uri=${uri}, status=${status}, time=${latency_human}\n",
-	}))
+    setupRoutes(e, userHandler)
 
+    log.Println("Servidor rodando na porta :8080")
 
-	// testando rotas
+    e.Logger.Fatal(e.Start(":8080"))
+}
 
-	e.POST("/user", h.CreateUser)
+func setupRoutes(e *echo.Echo, userHandler *handler.UserHandler) {
 
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{
-			"message": "Hello, World!",
-		})
-	})
+    api := e.Group("/api/v1")
 
-	e.GET("/home", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Pagina home")
-	})
+    api.POST("/user", userHandler.CreateUser)
+    api.GET("/user/:id", userHandler.FindById)
+    api.GET("/users", userHandler.FindAll)
+    api.PUT("/user/:id", userHandler.UpdateUser)
+    api.DELETE("/user/:id", userHandler.DeleteById)
 
-	
-	e.Logger.Fatal(e.Start(":8080"))
+    e.GET("/teste", func(c echo.Context) error {
+        return c.JSON(http.StatusOK, map[string]string{
+            "status": "ok",
+            "message": "API Echo funcionando!",
+        })
+    })
+
+    log.Println("Rotas configuradas:")
+    for _, route := range e.Routes() {
+        log.Printf("  %s %s", route.Method, route.Path)
+    }
 }
