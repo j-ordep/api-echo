@@ -18,7 +18,8 @@ func main() {
     if err != nil {
         log.Fatal("Erro ao conectar com o banco:", err)
     }
-    defer db.Close()
+
+    // Não precisa de defer dbConn.Close() com GORM, pois ele gerencia a conexão
 
     userRepo := repository.NewUserRepository(db)
     userService := service.NewUserService(userRepo)
