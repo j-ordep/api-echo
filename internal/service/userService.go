@@ -15,9 +15,9 @@ func NewUserService(repository domain.UserRepository) *UserService {
 func (s *UserService) CreateUser(user *domain.User) (*domain.User, error) {
 
 	existingUser, err := s.repository.FindByEmail(user.Email)
-	if err != nil {
-		return nil, err
-	}
+   	if err != nil && err != domain.ErrUserNotFound {
+    	return nil, err
+    }
 
 	if existingUser != nil {
 		return nil, domain.ErrUserAlreadyExists
@@ -68,7 +68,7 @@ func (s *UserService) UpdateUser(id string, user *domain.User) (*domain.User, er
 	return newUser, nil
 }
 
-func (s *UserService) DeleteById(id string) error{
+func (s *UserService) DeleteById(id string) error {
 	err := s.repository.DeleteById(id)
 	if err != nil {
 		return err
