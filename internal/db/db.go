@@ -31,12 +31,14 @@ func NewConfig() *Config {
 
 /* EXEMPLO:
 
-	getEnv("DB_HOST", "localhost"),
-	- verifica se "DB_HOST" existe, se existir atribui "localhost ao atributo da STRUCT"
+	getEnv("DB_HOST", "localhost")
+
+	- verifica se "DB_HOST" existe no .env, se existir, utiliza o value da variavel de ambiente, 
+      se não, atribui "localhost"(defaultValue) a STRUCT
 */
 
 func getEnv(key, defaultValue string) string {
-	value := os.Getenv(key);
+	value := os.Getenv(key) // return value da key no .env
     if value != "" {
         return value
     }
@@ -58,7 +60,10 @@ func Connect() (*sql.DB, error) {
         return nil, fmt.Errorf("erro ao abrir conexão com o banco de dados: %v", err)
     }
 
+    // define o número máximo de conexões abertas simultâneas com o banco
     db.SetMaxOpenConns(25)
+
+    // define o tempo máximo (em segundos) que uma conexão pode ficar ociosa (sem uso) antes de ser fechada
     db.SetMaxIdleConns(25)
 
 	err = db.Ping()
