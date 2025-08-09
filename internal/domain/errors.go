@@ -4,7 +4,7 @@ import "errors"
 
 // User errors
 var (
-	ErrUserNotFound = errors.New("User not found")
+	ErrUserNotFound = errors.New("usuário não encontrado")
 	ErrUserAlreadyExists = errors.New("usuário já existe")
 	ErrInvalidUserData  = errors.New("dados do usuário inválidos")
 	ErrUserIDRequired   = errors.New("ID do usuário é obrigatório")
