@@ -1,12 +1,12 @@
 package db
 
 import (
-    "database/sql"
     "fmt"
     "log"
     "os"
 
-    _ "github.com/lib/pq"
+    "gorm.io/driver/postgres"
+    "gorm.io/gorm"
 )
 
 type Config struct {
@@ -50,23 +50,15 @@ func (c *Config) ConnectionString() string {
     )
 }
 
-func Connect() (*sql.DB, error) {
+func Connect() (*gorm.DB, error) {
     config := NewConfig()
-    
-    db, err := sql.Open("postgres", config.ConnectionString())
+    dsn := config.ConnectionString()
+
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
-        return nil, fmt.Errorf("erro ao abrir conexão com o banco de dados: %v", err)
+        return nil, fmt.Errorf("erro ao conectar com o banco de dados: %v", err)
     }
 
-    db.SetMaxOpenConns(25)
-    db.SetMaxIdleConns(25)
-
-	err = db.Ping()
-    if err != nil {
-        return nil, fmt.Errorf("erro ao conectar: %v", err)
-    }
-
-    log.Println("Conectado ao postgres com sucesso!")
-	
+    log.Println("Conectado ao postgres com GORM com sucesso!")
     return db, nil
 }
