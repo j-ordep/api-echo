@@ -32,8 +32,6 @@ func main() {
 
     setupRoutes(e, userHandler)
 
-    log.Println("Servidor rodando na porta :8080")
-
     e.Logger.Fatal(e.Start(":8080"))
 }
 
@@ -54,7 +52,6 @@ func setupRoutes(e *echo.Echo, userHandler *handler.UserHandler) {
         })
     })
 
-    log.Println("Rotas configuradas:")
     for _, route := range e.Routes() {
         log.Printf("  %s %s", route.Method, route.Path)
     }
