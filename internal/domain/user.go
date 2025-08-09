@@ -7,11 +7,11 @@ import (
 )
 
 type User struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Email string `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+    Id        string    `json:"id" gorm:"type:uuid;primaryKey"`
+    Name      string    `json:"name" gorm:"type:varchar(100);not null"`
+    Email     string    `json:"email" gorm:"type:varchar(100);unique;not null"`
+    CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+    UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 func NewUser(name string, email string) *User {
