@@ -12,8 +12,8 @@ var (
 
 // General errors
 var (
-    ErrInvalidJSON      = errors.New("JSON inválido")
-    ErrInternalServer   = errors.New("erro interno do servidor")
+    ErrInvalidJSON = errors.New("JSON inválido")
+    ErrInternalServer = errors.New("erro interno do servidor")
 )
 
 // HTTP
